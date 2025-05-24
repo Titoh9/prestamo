@@ -1,0 +1,23 @@
+
+node_modules/
+
+# Archivos del sistema
+.DS_Store
+Thumbs.db
+
+# Archivos de configuración de entorno
+.env
+*.log
+
+# Salidas de build 
+dist/
+build/
+
+# Editor configs
+.vscode/
+.idea/
+
+# OneDrive / Windows
+*.tmp
+*.bak
+~$*
