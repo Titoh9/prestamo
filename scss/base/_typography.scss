@@ -1,0 +1,11 @@
+@use '../utils/variables';
+body {
+  font-family: variables.$font-stack;
+  background-color: variables.$background-color;
+  color: variables.$primary-color;
+  padding: 2rem;
+}
+
+h1, h2 {
+  margin-bottom: 1rem;
+}

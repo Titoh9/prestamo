@@ -3,13 +3,41 @@
 <head>
   <meta charset="UTF-8">
   <title>Simulador de Préstamos</title>
+  <link rel="stylesheet" href="css/styles.css">
 </head>
 <body>
   <h1>Simulador de Préstamos</h1>
   <p>
-    Este simulador permite calcular el monto total a devolver por un préstamo, en función del monto solicitado, la tasa de interés y la cantidad de cuotas. Toda la interacción se realiza mediante la Consola JS y cuadros de diálogo.
+    Este simulador permite calcular el monto total a devolver por un préstamo, en función del monto solicitado, la tasa de interés y la cantidad de cuotas.
   </p>
 
-  <script src="js/simulador.js"></script>
+  <form id="formularioPrestamo" autocomplete="off">
+    <label for="monto">Monto solicitado ($):</label>
+    <input type="number" id="monto" name="monto" min="1" required aria-required="true"><br><br>
+
+    <span id="tasaInteres" aria-live="polite">Tasa de interés anual: ...</span><br><br>
+
+    <label for="cuotas">Cantidad de cuotas:</label>
+    <input type="number" id="cuotas" name="cuotas" min="1" required aria-required="true"><br><br>
+
+    <button type="submit">Calcular</button>
+  </form>
+
+  <div id="resultado" aria-live="polite">
+    <h2>Resultado</h2>
+    <p id="montoTotal">Monto total a devolver: $0.00</p>
+    <p id="cuotaMensual">Cuota mensual: $0.00</p>
+  </div>
+
+  <div id="historial">
+    <h2>Historial de simulaciones</h2>
+    <button id="borrarHistorial" type="button">Borrar historial</button>
+    <ul id="listaHistorial"></ul>
+  </div>
+
+  <div id="error" class="error" aria-live="assertive"></div>
+  <div id="cargando" class="cargando" style="display:none;">Cargando...</div>
+
+  <script src="./js/simulador.js"></script>
 </body>
 </html>
