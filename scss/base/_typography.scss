@@ -1,11 +1,12 @@
 @use '../utils/variables';
 body {
-  font-family: variables.$font-stack;
-  background-color: variables.$background-color;
-  color: variables.$primary-color;
-  padding: 2rem;
+  font-family: variables.$fuente-principal;
+  background-color: variables.$color-fondo;
+  color: variables.$color-secundario;
+  line-height: 1.6;
 }
-
 h1, h2 {
   margin-bottom: 1rem;
+  color: variables.$color-primario;
 }
+

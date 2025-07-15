@@ -1,13 +1,32 @@
 @use '../utils/variables';
 @use '../base/reset';
 #resultado {
-  background: white;
+  background: variables.$color-blanco;
   padding: 1rem;
-  border-left: 5px solid variables.$accent-color;
-  max-width: 400px;
+  border-left: 5px solid variables.$color-exito;
+  max-width: 500px;
   border-radius: 4px;
+  margin-bottom: 2rem;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.1);
 
   p {
     margin: 0.5rem 0;
   }
+}
+
+#montoDolares {
+  margin-top: 1rem;
+  color: variables.$color-exito;
+  font-weight: bold;
+  font-size: 1.05rem;
+}
+
+#cotizacionDolar {
+  background-color: variables.$color-blanco;
+  padding: 0.6rem 1rem;
+  border-left: 5px solid variables.$color-primario;
+  font-weight: 600;
+  margin: 1rem 0;
+  border-radius: 4px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.08);
 }

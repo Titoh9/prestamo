@@ -1,25 +1,7 @@
-// Declaración de variables y constantes
-const tasaInteresAnual = 0.45;
 let prestamos = JSON.parse(localStorage.getItem("prestamos")) || [];
+let cotizacionesDolar = {};
 
-// Función para solicitar datos
-function solicitarDatos() {
-  let nombre = prompt("Ingrese su nombre:");
-  if (nombre === null) return null;
-  let monto = parseFloat(prompt("Ingrese el monto del préstamo:"));
-  if (isNaN(monto) || monto <= 0) {
-    alert("Monto inválido.");
-    return null;
-  }
-  let cuotas = parseInt(prompt("Ingrese la cantidad de cuotas:"));
-  if (isNaN(cuotas) || cuotas <= 0) {
-    alert("Cantidad de cuotas inválida.");
-    return null;
-  }
-  return { nombre, monto, cuotas };
-}
-
-// Mostrar historial de préstamos en el DOM
+// Mostrar historial
 function mostrarHistorial() {
   const lista = document.getElementById("listaHistorial");
   lista.innerHTML = "";
@@ -31,10 +13,9 @@ function mostrarHistorial() {
 
   prestamos.forEach((prestamo, index) => {
     const item = document.createElement("li");
-    // Agrega fecha y hora de simulación
     const fecha = prestamo.fecha ? ` | ${prestamo.fecha}` : "";
     item.textContent = `#${index + 1} → Monto: $${prestamo.monto.toFixed(2)}, Cuotas: ${prestamo.cuotas}, Total: $${prestamo.total.toFixed(2)}, Cuota: $${prestamo.cuotaMensual.toFixed(2)}${fecha}`;
-    // Botón para eliminar simulación individual
+
     const btnEliminar = document.createElement("button");
     btnEliminar.textContent = "Eliminar";
     btnEliminar.style.marginLeft = "10px";
@@ -43,24 +24,44 @@ function mostrarHistorial() {
       localStorage.setItem("prestamos", JSON.stringify(prestamos));
       mostrarHistorial();
     };
+
     item.appendChild(btnEliminar);
     lista.appendChild(item);
   });
 }
 
-// Mostrar resultados actuales
+// Mostrar resultados
 function mostrarResultado(resultado) {
   document.getElementById("montoTotal").textContent =
     `Monto total a devolver: $${resultado.total.toFixed(2)}`;
   document.getElementById("cuotaMensual").textContent =
     `Cuota mensual: $${resultado.cuotaMensual.toFixed(2)}`;
+
+  const tipo = document.getElementById("tipoDolar").value;
+  const valorDolar = cotizacionesDolar[tipo];
+
+  if (!isNaN(valorDolar)) {
+    const totalUSD = resultado.total / valorDolar;
+    let montoDolares = document.getElementById("montoDolares");
+
+    if (!montoDolares) {
+      montoDolares = document.createElement("p");
+      montoDolares.id = "montoDolares";
+      document.getElementById("resultado").appendChild(montoDolares);
+    }
+
+    montoDolares.textContent = `Monto total en dólares (${tipo.toLowerCase()}): $${totalUSD.toFixed(2)} USD`;
+  }
 }
 
-// Mostrar mensajes de error
+// Mostrar errores
 function mostrarError(mensaje) {
-  const errorDiv = document.getElementById("error");
-  errorDiv.textContent = mensaje;
-  setTimeout(() => errorDiv.textContent = "", 3500);
+  Swal.fire({
+    icon: 'error',
+    title: 'Error',
+    text: mensaje,
+    confirmButtonColor: '#3498db'
+  });
 }
 
 // Calcular préstamo
@@ -71,13 +72,28 @@ function calcularPrestamo(monto, cuotas, tasaAnual) {
   return { cuotaMensual, total };
 }
 
-// Inicializar simulador después de obtener la tasa desde JSON
+// Mostrar cotización
+function mostrarCotizacion(tipo) {
+  const valor = cotizacionesDolar[tipo];
+  const cotizacion = document.getElementById("cotizacionDolar");
+  if (valor) {
+    cotizacion.textContent = `Cotización del ${tipo.toLowerCase()}: $${valor.toFixed(2)}`;
+  } else {
+    cotizacion.textContent = `Cotización del ${tipo.toLowerCase()}: no disponible`;
+  }
+}
+
+// Escuchar cambios en el selector
+document.getElementById("tipoDolar").addEventListener("change", (e) => {
+  mostrarCotizacion(e.target.value);
+});
+
+// Inicializar simulador
 function iniciarSimulador(tasa) {
   document.getElementById("tasaInteres").textContent = `Tasa de interés anual: ${(tasa * 100).toFixed(2)}%`;
+  document.getElementById("monto").focus();
 
   const formulario = document.getElementById("formularioPrestamo");
-  // Mejor UX: enfoca el primer campo al cargar
-  document.getElementById("monto").focus();
 
   formulario.addEventListener("submit", function (e) {
     e.preventDefault();
@@ -90,13 +106,13 @@ function iniciarSimulador(tasa) {
       document.getElementById("monto").focus();
       return;
     }
+
     if (isNaN(cuotas) || cuotas <= 0) {
       mostrarError("Ingrese una cantidad de cuotas válida mayor a 0.");
       document.getElementById("cuotas").focus();
       return;
     }
 
-    // Deshabilita el botón mientras procesa
     const btn = formulario.querySelector("button[type='submit']");
     btn.disabled = true;
 
@@ -104,14 +120,12 @@ function iniciarSimulador(tasa) {
     mostrarResultado(resultado);
     document.getElementById("resultado").scrollIntoView({ behavior: "smooth" });
 
-    // Guarda fecha y hora de simulación
     const fecha = new Date().toLocaleString();
     prestamos.push({ monto, tasaAnual: tasa * 100, cuotas, ...resultado, fecha });
     localStorage.setItem("prestamos", JSON.stringify(prestamos));
     mostrarHistorial();
-    formulario.reset(); // Limpiar formulario
+    formulario.reset();
 
-    // Reactiva el botón después de procesar
     btn.disabled = false;
     document.getElementById("monto").focus();
   });
@@ -121,25 +135,55 @@ function iniciarSimulador(tasa) {
 
 // Borrar historial
 document.getElementById("borrarHistorial").addEventListener("click", () => {
-  prestamos = [];
-  localStorage.removeItem("prestamos");
-  mostrarHistorial();
-  document.getElementById("montoTotal").textContent = "Monto total a devolver: $0.00";
-  document.getElementById("cuotaMensual").textContent = "Cuota mensual: $0.00";
+  Swal.fire({
+    title: "¿Estás seguro?",
+    text: "Se eliminará todo el historial.",
+    icon: "warning",
+    showCancelButton: true,
+    confirmButtonColor: "#e74c3c",
+    cancelButtonColor: "#aaa",
+    confirmButtonText: "Sí, borrar"
+  }).then((result) => {
+    if (result.isConfirmed) {
+      prestamos = [];
+      localStorage.removeItem("prestamos");
+      mostrarHistorial();
+      document.getElementById("montoTotal").textContent = "Monto total a devolver: $0.00";
+      document.getElementById("cuotaMensual").textContent = "Cuota mensual: $0.00";
+      const montoDolares = document.getElementById("montoDolares");
+      if (montoDolares) montoDolares.textContent = "";
+    }
+  });
 });
 
-// Mostrar loader al iniciar la carga
+// Loader
 document.getElementById("cargando").style.display = "block";
 
+// API bluelytics 
+fetch("https://api.bluelytics.com.ar/v2/latest")
+  .then(response => response.json())
+  .then(data => {
+    cotizacionesDolar["Dolar Oficial"] = data.oficial.value_sell;
+    cotizacionesDolar["Dolar Blue"] = data.blue.value_sell;
+
+    const tipoInicial = document.getElementById("tipoDolar").value;
+    mostrarCotizacion(tipoInicial);
+  })
+  .catch(() => {
+    document.getElementById("cotizacionDolar").textContent =
+      "Error al obtener las cotizaciones del dólar.";
+  });
+
+// Configuración desde JSON
 fetch("data/config.json")
   .then(response => response.json())
   .then(config => {
-    document.getElementById("cargando").style.display = "none"; 
+    document.getElementById("cargando").style.display = "none";
     const tasa = config.tasaInteresAnual / 100;
     iniciarSimulador(tasa);
   })
-  .catch(error => {
-    document.getElementById("cargando").style.display = "none"; 
+  .catch(() => {
+    document.getElementById("cargando").style.display = "none";
     mostrarError("No se pudo cargar la configuración. Se usará una tasa por defecto.");
     iniciarSimulador(0.45);
   });

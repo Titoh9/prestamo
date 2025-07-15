@@ -1,23 +1,27 @@
-
+# Dependencias
 node_modules/
 
-# Archivos del sistema
+# Salidas de compilación Sass
+.sass-cache/
+*.css.map
+
+# Archivos de sistema
 .DS_Store
 Thumbs.db
 
-# Archivos de configuración de entorno
+# Configuración del entorno / logs
 .env
 *.log
 
-# Salidas de build 
+# Salidas de build
 dist/
 build/
 
-# Editor configs
+# Configs de editores
 .vscode/
 .idea/
 
-# OneDrive / Windows
+# Archivos temporales de Windows/Office
 *.tmp
 *.bak
 ~$*

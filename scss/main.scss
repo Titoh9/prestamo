@@ -1,6 +1,24 @@
-@use 'utils/variables';
-@use 'base/reset';
-@use 'base/typography';
-@use 'layout/form';
-@use 'layout/resultado';
-@use 'layout/historial';
+@use "utils/variables";
+@use "base/reset";
+@use "base/typography";
+@use "layout/form";
+@use "layout/resultado";
+@use "layout/historial";
+
+body {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 2rem;
+  background-color: variables.$color-fondo;
+}
+
+.error {
+  color: variables.$color-error;
+  font-weight: bold;
+  margin-top: 1rem;
+}
+
+.cargando {
+  color: variables.$color-secundario;
+  font-style: italic;
+}
